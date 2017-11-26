@@ -1,0 +1,8 @@
+mongodb:
+  host: 127.0.0.1
+  port: 27017
+  database: mudf_benchmark
+elasticsearch:
+  host: localhost
+  port: 9200
+  index: mudf_benchmark
