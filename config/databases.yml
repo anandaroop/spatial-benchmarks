@@ -6,3 +6,7 @@ elasticsearch:
   host: localhost
   port: 9200
   index: mudf_benchmark
+postgresql:
+  host: localhost
+  port: 5432
+  database: mudf_benchmark
