@@ -1,6 +1,19 @@
 # frozen_string_literal: true
 
 require './lib/mudf'
+require 'open-uri'
+
+desc 'Get the MUDF data'
+task :get_csv do
+  # https://www.imls.gov/research-evaluation/data-collection/museum-universe-data-file
+  puts 'Downloading…'
+  src = open('https://www.imls.gov/sites/default/files/mudf15q3pub_csv.zip')
+  dst = File.open('./mudf15q3pub_csv.zip', 'w')
+  dst.write(src.read)
+  puts 'Decompressing…'
+  system "unzip #{dst.path}"
+  puts 'Done.'
+end
 
 namespace :mongo do
   desc 'Load MUDF data into a Mongo database'
