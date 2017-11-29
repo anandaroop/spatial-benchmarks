@@ -30,7 +30,19 @@ namespace :elasticsearch do
   end
 end
 
-task :config do
-  config = YAML.load_file './config/databases.yml'
-  puts config.inspect
+namespace :postgres do
+  desc 'Load MUDF data into a Postgres database'
+  task :load do
+    loader = MUDF::Loader::Postgres.new
+    loader.load
+  end
+
+  desc 'Run benchmark queries against Postgres database'
+  task :benchmark do
+    benchmark = MUDF::Benchmark::Postgres.new
+    benchmark.run
+  end
 end
+
+desc 'Load all the things'
+task load: %i[mongo:load elasticsearch:load postgres:load]
