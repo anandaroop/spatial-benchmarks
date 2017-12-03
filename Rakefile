@@ -42,7 +42,7 @@ namespace :elasticsearch do
   desc 'Run benchmark queries against Elasticsearch'
   task :benchmark do
     benchmark = MUDF::Benchmark::Elasticsearch.new
-    benchmark.run
+    benchmark.measure(n: N)
   end
 end
 
@@ -68,9 +68,11 @@ desc 'Benchmark all the things'
 task :benchmark do
   mongo = MUDF::Benchmark::Mongo.new
   postgres = MUDF::Benchmark::Postgres.new
+  elasticsearch = MUDF::Benchmark::Elasticsearch.new
 
   Benchmark.bmbm do |x|
-    x.report('Mongo') { N.times { mongo.run } }
+    x.report('Mongo')    { N.times { mongo.run } }
     x.report('Postgres') { N.times { postgres.run } }
+    x.report('Elastic')  { N.times { elasticsearch.run } }
   end
 end

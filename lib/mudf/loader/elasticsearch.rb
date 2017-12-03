@@ -6,7 +6,7 @@ module MUDF
       def initialize
         super
         config = YAML.load_file('./config/databases.yml')['elasticsearch']
-        host, port, = config.values_at('host', 'port')
+        host, port = config.values_at('host', 'port')
         url = "http://#{host}:#{port}"
         @client = ::Elasticsearch::Client.new(url: url)
         @index = config['index']
