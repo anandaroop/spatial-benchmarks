@@ -2,6 +2,17 @@
 
 This will be a testbed for benchmarking basic geospatial queries across a range of data stores.
 
+## Findings
+
+- TLDR
+  - 1 second of PostGIS time
+  - ≈
+  - 6-7 seconds of Mongo time
+
+- Mongo
+  - use a $geoWithin with $geometry to hit the 2dsphere index
+  - bbox queries that use index are ~30x faster
+
 ## Prerequisites
 
 ### PostgreSQL

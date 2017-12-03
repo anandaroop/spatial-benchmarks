@@ -19,7 +19,8 @@ module MUDF
       SQL
 
       INSERT_ROW = <<~SQL
-        INSERT INTO orgs (mid, commonname, latitude, longitude, adstreet, adcity, adstate, adzip, discipl, weburl) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+        INSERT INTO orgs (mid, commonname, latitude, longitude, adstreet, adcity, adstate, adzip, discipl, weburl)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
       SQL
 
       ADD_LOCATION_COL_1 = <<~SQL

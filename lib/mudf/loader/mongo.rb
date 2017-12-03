@@ -8,7 +8,6 @@ module MUDF
         config = YAML.load_file('./config/databases.yml')['mongodb']
         host, port, database = config.values_at('host', 'port', 'database')
         connection_string = "mongodb://#{host}:#{port}/#{database}"
-        puts connection_string
         @client = ::Mongo::Client.new(connection_string)
         @client.logger.level = Logger::ERROR
         @collection = @client[:orgs]

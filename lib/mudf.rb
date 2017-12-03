@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'benchmark'
 require 'csv'
 require 'mongo'
 require 'elasticsearch'
