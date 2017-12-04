@@ -6,13 +6,17 @@ module MUDF
       QUERIES_PATH = './queries.json'
 
       def initialize(path = QUERIES_PATH)
-        hash = JSON.parse(File.read(path))
-        @queries = OpenStruct.new(hash)
+        @queries = JSON.parse(File.read(path))
       end
 
       def each_bounding_box
-        @queries.bounding_boxes.each do |box|
-          yield OpenStruct.new(box)
+        @queries.each do |bounds|
+          yield OpenStruct.new(
+            w: bounds['_southWest']['lng'],
+            e: bounds['_northEast']['lng'],
+            s: bounds['_southWest']['lat'],
+            n: bounds['_northEast']['lat']
+          )
         end
       end
 

@@ -3,7 +3,7 @@
 require './lib/mudf'
 require 'open-uri'
 
-N = 500
+N = 100
 
 desc 'Get the MUDF data'
 task :get_csv do
