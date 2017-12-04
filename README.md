@@ -9,7 +9,7 @@ This will be a testbed for benchmarking basic geospatial queries across a range 
   - ≈
   - 7 seconds of Mongo time
   - ≈
-  - 6 seconds of Elasticsearch time
+  - 5 seconds of Elasticsearch time
 
 - Mongo
   - use a $geoWithin with $geometry to hit the 2dsphere index
