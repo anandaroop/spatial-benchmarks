@@ -1,3 +1,10 @@
+### Misc notes
+
+- use PostGIS to add geometry columns
+- use a GiST index on the geometry column
+- perform bbox queries with `&& ST_MakeEnvelope(…)`
+- bbox queries that use index are ~40x faster
+
 # Steps
 
 - `brew install postgresql postgis`
