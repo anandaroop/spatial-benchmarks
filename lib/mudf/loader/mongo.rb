@@ -15,6 +15,10 @@ module MUDF
         @collection.indexes.create_one(location: '2dsphere')
       end
 
+      def title
+        'Mongo'
+      end
+
       def transform_row!(input_row)
         input_row.tap do |row|
           lon = row.delete('longitude').to_f

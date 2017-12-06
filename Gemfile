@@ -9,3 +9,4 @@ gem 'mongo', '~> 2.4'
 gem 'pg'
 gem 'pry'
 gem 'rubocop', require: false
+gem 'ruby-progressbar'

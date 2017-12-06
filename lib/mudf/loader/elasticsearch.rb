@@ -14,6 +14,10 @@ module MUDF
         reset_index!
       end
 
+      def title
+        'Elastic'
+      end
+
       def reset_index!
         if @client.indices.exists? index: @index
           @client.indices.delete index: @index

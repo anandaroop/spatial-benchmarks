@@ -51,6 +51,10 @@ module MUDF
         prepare_db!
       end
 
+      def title
+        'Postgres'
+      end
+
       def prepare_db!
         @client.exec('DROP TABLE IF EXISTS orgs')
         @client.exec(DDL)

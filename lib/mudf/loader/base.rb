@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'ruby-progressbar'
+
 module MUDF
   module Loader
     class Base
@@ -23,8 +25,11 @@ module MUDF
       def initialize(path = CSV_PATH)
         @file = File.open(path)
         @file.set_encoding 'ISO-8859-1:UTF-8'
-
         @csv = CSV.new(@file, headers: true)
+        @bar = ProgressBar.create title: format('%10s', title),
+                                  total: @file.size,
+                                  format: '%t %J%% [%B] %e ',
+                                  throttle_rate: 0.1
       end
 
       def each_row
@@ -37,15 +42,19 @@ module MUDF
       end
 
       def load
-        i = 0
         each_row do |row|
           transform_row!(row)
           persist_row(row)
-          print "#{i += 1}\r"
+          @bar.progress = @file.pos
           # puts row.inspect
-          # break if i >= 10000
+          # break if @file.lineno >= 10000
         end
         finalize
+      end
+
+      # must override
+      def title
+        raise 'Must be defined in subclass'
       end
 
       # must override
