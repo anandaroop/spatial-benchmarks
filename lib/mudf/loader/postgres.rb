@@ -23,30 +23,25 @@ module MUDF
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
       SQL
 
-      ADD_LOCATION_COL_1 = <<~SQL
+      ADD_LOCATION_COL = <<~SQL
         SELECT AddGeometryColumn('orgs', 'location', 4326, 'POINT', 2)
       SQL
 
-      ADD_LOCATION_COL_2 = <<~SQL
-        SELECT AddGeometryColumn('orgs', 'location_indexed', 4326, 'POINT', 2)
-      SQL
-
-      UPDATE_LOCATION_COL_1 = <<~SQL
+      UPDATE_LOCATION_COL = <<~SQL
         UPDATE orgs SET location = ST_GeomFromText('POINT( ' || longitude || ' ' || latitude || ')', 4326)
       SQL
 
-      UPDATE_LOCATION_COL_2 = <<~SQL
-        UPDATE orgs SET location_indexed = ST_GeomFromText('POINT( ' || longitude || ' ' || latitude || ')', 4326)
-      SQL
-
       INDEX_COL = <<~SQL
-        CREATE INDEX orgs_location_indexed_idx ON orgs USING GIST ( location_indexed )
+        CREATE INDEX orgs_location_idx ON orgs USING GIST ( location )
       SQL
 
       def initialize
         super
         config = YAML.load_file('./config/databases.yml')['postgresql']
         host, port, database = config.values_at('host', 'port', 'database')
+        conn = ::PG::Connection.new(host: host, port: port, dbname: 'postgres')
+        conn.exec("DROP DATABASE IF EXISTS #{database}")
+        conn.exec("CREATE DATABASE #{database}")
         @client = ::PG::Connection.new(host: host, port: port, dbname: database)
         prepare_db!
       end
@@ -56,7 +51,6 @@ module MUDF
       end
 
       def prepare_db!
-        @client.exec('DROP TABLE IF EXISTS orgs')
         @client.exec(DDL)
         @client.prepare('org_insert', INSERT_ROW)
       end
@@ -89,15 +83,12 @@ module MUDF
       end
 
       def create_spatial_cols!
-        @client.exec('DROP EXTENSION IF EXISTS postgis')
         @client.exec('CREATE EXTENSION postgis')
-        @client.exec(ADD_LOCATION_COL_1)
-        @client.exec(ADD_LOCATION_COL_2)
+        @client.exec(ADD_LOCATION_COL)
       end
 
       def update_spatial_cols!
-        @client.exec(UPDATE_LOCATION_COL_1)
-        @client.exec(UPDATE_LOCATION_COL_2)
+        @client.exec(UPDATE_LOCATION_COL)
       end
 
       def index_spatial_cols!
