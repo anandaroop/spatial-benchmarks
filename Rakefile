@@ -76,3 +76,8 @@ task :benchmark do
     x.report('Elastic')  { N.times { elasticsearch.run } }
   end
 end
+
+desc "Open a pry console"
+task :pry do
+  require 'pry'; binding.pry
+end
