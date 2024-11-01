@@ -2,10 +2,12 @@
 
 source 'https://rubygems.org'
 
-ruby '2.4.2'
-
-gem 'elasticsearch', '~> 2'
-gem 'mongo', '~> 2.4'
+gem 'rake'
+gem 'csv'
+gem 'bigdecimal'
+gem 'base64'
+gem 'elasticsearch'
+gem 'mongo'
 gem 'pg'
 gem 'pry'
 gem 'rubocop', require: false
