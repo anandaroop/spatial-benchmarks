@@ -85,7 +85,7 @@ $ bundle install
 1. Obtain the MUDF csv datafile:
 
 ```sh
-$ rake get_csv
+$ bundle exec rake get_csv
 ```
 
 2. Load up the data
