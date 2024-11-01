@@ -8,13 +8,13 @@ N = 100
 desc 'Get the MUDF data'
 task :get_csv do
   # https://www.imls.gov/research-evaluation/data-collection/museum-universe-data-file
+  url = "https://www.imls.gov/sites/default/files/2018_csv_museum_data_files.zip"
   puts 'Downloading…'
-  src = open('https://www.imls.gov/sites/default/files/mudf15q3pub_csv.zip')
-  dst = File.open('./mudf15q3pub_csv.zip', 'w')
-  dst.write(src.read)
-  puts 'Decompressing…'
-  system "unzip #{dst.path}"
-  puts 'Done.'
+  File.open("mudf.zip", "wb") do |file|
+    file.write URI.open(url).read
+  end
+  system('unzip mudf.zip')
+  puts "Done."
 end
 
 namespace :mongo do
