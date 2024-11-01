@@ -2,6 +2,8 @@
 
 require './lib/mudf'
 require 'open-uri'
+require 'pry'
+require 'debug'
 
 N = 100
 
