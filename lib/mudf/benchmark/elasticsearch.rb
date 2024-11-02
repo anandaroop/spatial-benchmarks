@@ -5,11 +5,11 @@ module MUDF
     class Elasticsearch < Base
       def initialize
         super
-        config = YAML.load_file('./config/databases.yml')['elasticsearch']
-        host, port = config.values_at('host', 'port')
+        config = YAML.load_file("./config/databases.yml")["elasticsearch"]
+        host, port = config.values_at("host", "port")
         url = "http://#{host}:#{port}"
         @client = ::Elasticsearch::Client.new(url: url)
-        @index = config['index']
+        @index = config["index"]
       end
 
       def run
@@ -17,7 +17,7 @@ module MUDF
           result = @client.count index: @index, body: {
             query: geo_bounding_box_query(box)
           }
-          _count = result['count']
+          _count = result["count"]
         end
       end
 
@@ -25,8 +25,8 @@ module MUDF
         {
           geo_bounding_box: {
             location: {
-              top_left: { lat: box.n, lon: box.w },
-              bottom_right: { lat: box.s, lon: box.e }
+              top_left: {lat: box.n, lon: box.w},
+              bottom_right: {lat: box.s, lon: box.e}
             }
           }
         }

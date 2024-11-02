@@ -5,8 +5,8 @@ module MUDF
     class Mongo < Base
       def initialize
         super
-        config = YAML.load_file('./config/databases.yml')['mongodb']
-        host, port, database = config.values_at('host', 'port', 'database')
+        config = YAML.load_file("./config/databases.yml")["mongodb"]
+        host, port, database = config.values_at("host", "port", "database")
         connection_string = "mongodb://#{host}:#{port}/#{database}"
         @client = ::Mongo::Client.new(connection_string)
         @client.logger.level = Logger::ERROR
@@ -26,8 +26,8 @@ module MUDF
       # this one won't use index
       def geo_within_box_query(box)
         {
-          '$geoWithin' => {
-            '$box' => [[box.w, box.s], [box.e, box.n]]
+          "$geoWithin" => {
+            "$box" => [[box.w, box.s], [box.e, box.n]]
           }
         }
       end
@@ -35,9 +35,9 @@ module MUDF
       # this one will use index -- about 30x faster
       def geo_within_geometry_query(box)
         {
-          '$geoWithin' => {
-            '$geometry': {
-              type: 'Polygon',
+          "$geoWithin" => {
+            "$geometry": {
+              type: "Polygon",
               coordinates: to_polygon(box)
             }
           }

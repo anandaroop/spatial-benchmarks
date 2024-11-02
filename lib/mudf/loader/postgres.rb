@@ -37,9 +37,9 @@ module MUDF
 
       def initialize
         super
-        config = YAML.load_file('./config/databases.yml')['postgresql']
-        host, port, database = config.values_at('host', 'port', 'database')
-        conn = ::PG::Connection.new(host: host, port: port, dbname: 'postgres')
+        config = YAML.load_file("./config/databases.yml")["postgresql"]
+        host, port, database = config.values_at("host", "port", "database")
+        conn = ::PG::Connection.new(host: host, port: port, dbname: "postgres")
         conn.exec("DROP DATABASE IF EXISTS #{database}")
         conn.exec("CREATE DATABASE #{database}")
         @client = ::PG::Connection.new(host: host, port: port, dbname: database)
@@ -47,30 +47,30 @@ module MUDF
       end
 
       def title
-        'Postgres'
+        "Postgres"
       end
 
       def prepare_db!
         @client.exec(DDL)
-        @client.prepare('org_insert', INSERT_ROW)
+        @client.prepare("org_insert", INSERT_ROW)
       end
 
       def transform_row!(input_row)
         input_row.tap do |row|
-          row['mid'] = row['mid'].to_i
-          row['latitude'] = row['latitude'].to_f
-          row['longitude'] = row['longitude'].to_f
+          row["mid"] = row["mid"].to_i
+          row["latitude"] = row["latitude"].to_f
+          row["longitude"] = row["longitude"].to_f
         end
       end
 
       def persist_row(row)
-        @client.exec_prepared('org_insert', row.values)
+        @client.exec_prepared("org_insert", row.values)
       end
 
       def finalize
         enable_postgis!
 
-        res = @client.exec('select count(*) from orgs')
+        res = @client.exec("select count(*) from orgs")
         count = res.values[0][0]
         puts "Loaded #{count} records"
         @client.close
@@ -83,7 +83,7 @@ module MUDF
       end
 
       def create_spatial_cols!
-        @client.exec('CREATE EXTENSION postgis')
+        @client.exec("CREATE EXTENSION postgis")
         @client.exec(ADD_LOCATION_COL)
       end
 
@@ -93,7 +93,7 @@ module MUDF
 
       def index_spatial_cols!
         @client.exec(INDEX_COL)
-        @client.exec('VACUUM ANALYZE orgs')
+        @client.exec("VACUUM ANALYZE orgs")
       end
     end
   end
