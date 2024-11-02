@@ -1,5 +1,5 @@
 {
-  "ruby.lint": {
-    "rubocop": true
-  }
+  "[ruby]": {
+    "editor.defaultFormatter": "testdouble.vscode-standard-ruby"
+  },
 }
