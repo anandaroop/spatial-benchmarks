@@ -1,24 +1,22 @@
 # frozen_string_literal: true
 
-require './lib/mudf'
-require 'open-uri'
-require 'pry'
-require 'debug'
+require "./lib/mudf"
+require "open-uri"
+require "pry"
+require "debug"
 
 N = 100
 
-desc 'Get the MUDF data'
+desc "Get the MUDF data"
 task :get_csv do
   # https://www.imls.gov/research-evaluation/data-collection/museum-universe-data-file
   url = "https://www.imls.gov/sites/default/files/2018_csv_museum_data_files.zip"
 
-  puts 'Downloading…'
-  File.open("mudf.zip", "wb") do |file|
-    file.write URI.open(url).read
-  end
-  system('unzip mudf.zip')
-  
-  puts 'Modifying files…'
+  puts "Downloading…"
+  File.binwrite("mudf.zip", URI.open(url).read)
+  system("unzip mudf.zip")
+
+  puts "Modifying files…"
   files = [
     "MuseumFile2018_File1_Nulls.csv",
     "MuseumFile2018_File2_Nulls.csv",
@@ -36,28 +34,28 @@ task :get_csv do
 end
 
 namespace :mongo do
-  desc 'Load MUDF data into Mongo'
+  desc "Load MUDF data into Mongo"
   task :load do
     loader = MUDF::Loader::Mongo.new
     loader.load
   end
 
-  desc 'Run benchmark queries against Mongo'
+  desc "Run benchmark queries against Mongo"
   task :benchmark do
     benchmark = MUDF::Benchmark::Mongo.new
-    print 'Mongo'
+    print "Mongo"
     benchmark.measure(n: N)
   end
 end
 
 namespace :elasticsearch do
-  desc 'Load MUDF data into Elasticsearch'
+  desc "Load MUDF data into Elasticsearch"
   task :load do
     loader = MUDF::Loader::Elasticsearch.new
     loader.load
   end
 
-  desc 'Run benchmark queries against Elasticsearch'
+  desc "Run benchmark queries against Elasticsearch"
   task :benchmark do
     benchmark = MUDF::Benchmark::Elasticsearch.new
     benchmark.measure(n: N)
@@ -65,37 +63,38 @@ namespace :elasticsearch do
 end
 
 namespace :postgres do
-  desc 'Load MUDF data into Postgres/PostGIS'
+  desc "Load MUDF data into Postgres/PostGIS"
   task :load do
     loader = MUDF::Loader::Postgres.new
     loader.load
   end
 
-  desc 'Run benchmark queries against Postgres/PostGIS'
+  desc "Run benchmark queries against Postgres/PostGIS"
   task :benchmark do
     benchmark = MUDF::Benchmark::Postgres.new
-    print 'PostGIS'
+    print "PostGIS"
     benchmark.measure(n: N)
   end
 end
 
-desc 'Load all the things'
+desc "Load all the things"
 task load: %i[mongo:load elasticsearch:load postgres:load]
 
-desc 'Benchmark all the things'
+desc "Benchmark all the things"
 task :benchmark do
   mongo = MUDF::Benchmark::Mongo.new
   postgres = MUDF::Benchmark::Postgres.new
   elasticsearch = MUDF::Benchmark::Elasticsearch.new
 
   Benchmark.bmbm do |x|
-    x.report('Mongo')    { N.times { mongo.run } }
-    x.report('Postgres') { N.times { postgres.run } }
-    x.report('Elastic')  { N.times { elasticsearch.run } }
+    x.report("Mongo") { N.times { mongo.run } }
+    x.report("Postgres") { N.times { postgres.run } }
+    x.report("Elastic") { N.times { elasticsearch.run } }
   end
 end
 
 desc "Open a pry console"
 task :pry do
-  require 'pry'; binding.pry
+  require "pry"
+  binding.pry # standard:disable Lint/Debugger
 end
