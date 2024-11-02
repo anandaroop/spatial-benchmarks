@@ -6,10 +6,14 @@ module MUDF
       def initialize
         super
         config = YAML.load_file("./config/databases.yml")["elasticsearch"]
-        host, port = config.values_at("host", "port")
-        url = "http://#{host}:#{port}"
-        @client = ::Elasticsearch::Client.new(url: url)
-        @index = config["index"]
+        host, port, index = config.values_at("host", "port", "index")
+        host_url = "http://#{host}:#{port}"
+
+        @client = ::Elasticsearch::Client.new(
+          host: host_url
+          # log: true
+        )
+        @index = index
         @current_batch = []
         reset_index!
       end
@@ -18,17 +22,27 @@ module MUDF
         "Elastic"
       end
 
-      def reset_index!
-        if @client.indices.exists? index: @index
-          @client.indices.delete index: @index
-        end
-        @client.indices.create index: @index, body: {
+      def mapping
+        {
           mappings: {
-            org: {properties: {
-              location: {type: "geo_point"}
-            }}
+            properties: {
+              location: {
+                type: "geo_point"
+              }
+            }
           }
         }
+      end
+
+      def reset_index!
+        if @client.indices.exists?(index: @index)
+          @client.indices.delete(index: @index)
+        end
+
+        @client.indices.create(
+          index: @index,
+          body: mapping
+        )
       end
 
       def transform_row!(input_row)
@@ -46,7 +60,7 @@ module MUDF
             index: {_id: row["mid"], data: row}
           }
         else
-          @client.bulk body: @current_batch, index: @index, type: "org"
+          @client.bulk body: @current_batch, index: @index
           @current_batch = []
         end
       end
@@ -54,8 +68,7 @@ module MUDF
       def finalize
         # flush any remaining
         unless @current_batch.empty?
-          @client.bulk body: @current_batch, index: @index, type: "org",
-            refresh: true
+          @client.bulk body: @current_batch, index: @index, refresh: true
         end
         puts "Loaded #{@client.count(index: @index)["count"]} records"
       end
