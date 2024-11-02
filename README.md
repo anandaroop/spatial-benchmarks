@@ -8,13 +8,7 @@ It is written in Ruby, and organized as series of Rake tasks.
 
 ### TLDR
 
-**1 second of PostGIS time ≈ 6 seconds of Elasticsearch time ≈ 7 seconds of Mongo time**
-
-Well, sort of. On my machine, PostGIS and Mongo display steady throughput, while Elasticsearch is more erratic, possibly due to JVM garbage collection.
-
-Between Mongo and Elastic, it seems that Elastic has better _peak_ throughput, but Mongo has better _average_ throughput.
-
-Postgres is still the hands-down winner, nearly an order of magnitude faster.
+**1 second of PostGIS time ≈ 1.7 seconds of Elasticsearch time ≈ 1.5 seconds of Mongo time**
 
 ### Methodology
 
@@ -26,78 +20,76 @@ Repeat this 100 times for each data store.
 
 ### Dataset
 
-The spatial dataset for this benchmark is the [Museum Universe Data File](https://www.imls.gov/research-evaluation/data-collection/museum-universe-data-file), published by the Institute of Museum and Library Services, a collection of ~33,000 museums and related organizations in the United States.
+The spatial dataset for this benchmark is the [Museum Universe Data File](https://www.imls.gov/research-evaluation/data-collection/museum-universe-data-file), published in 2018 by the Institute of Museum and Library Services, a collection of ~30,000 museums and related organizations in the United States.
 
-See it [on a map](https://roop.carto.com/builder/9aed5ede-157a-4e90-9a9d-bf4d8343f301/embed)
+<!-- See it [on a map](https://roop.carto.com/builder/9aed5ede-157a-4e90-9a9d-bf4d8343f301/embed) -->
 
 ### Results
 
-For **N=100**, i.e. 10,000 bounding box queries:
+For **N=100**, i.e. 10,000 bounding box queries, here are the results, based on wall-clock time:
 
-|Data store|Version|Index|Elapsed|Normalized|Throughput|
-|---|---|---|---|---|---|
-|Postgres / PostGIS|10.1 / 2.4|GiST|2.38 sec|1.0|4,210 queries/sec|
-|Elasticsearch|2.4|n/a|14.90 sec|6.27|671 queries/sec|
-|MongoDB|3.4|2dsphere|16.77 sec|7.06|596 queries/sec|
+| Data store         | Version    | Index    | Elapsed (real) | Normalized | Throughput      |
+| ------------------ | ---------- | -------- | -------------- | ---------- | --------------- |
+| Postgres / PostGIS | 15.4 / 3.3 | GiST     | 12.17 sec      | 1.0        | 822 queries/sec |
+| Elasticsearch      | 8.12       | n/a      | 20.16 sec      | 1.66       | 496 queries/sec |
+| MongoDB            | 7.0        | 2dsphere | 18.74 sec      | 1.54       | 534 queries/sec |
 
-Hardware note: This is on my 2014-vintage Mac laptop:
-- Macbook Pro
-- Intel i7, quad-core, 2.3GHz
-- 16 GB RAM
+Hardware note: This is on a 2023-vintage Mac laptop:
+
+- MacBook Pro
+- Apple M2 Pro, 12-core, 3.49GHz
+- 32 GB RAM
 
 ## Running the benchmarks
 
 ### Prerequisites
 
-You will need working installations of:
+You will need a working Docker installation.
+
+This project includes a `docker-compose` configuration that will bring up services for:
+
 - PostgreSQL with the PostGIS spatial extensions
 - MongoDB
 - Elasticsearch
-
-With Homebrew this would be something like
-```sh
-brew install postgresql postgis
-brew install mongodb
-brew install elasticsearch
-# follow post-install instructions
-
-brew services start postgresql
-brew services start mongodb
-brew services start elasticsearch
-```
-
-This project will take care of creating the necessary databases and indexes when you do `rake load`.
-
-You can configure the services and databases in [databases.yml](config/databases.yml).
 
 ### Steps
 
 0. Clone this project and install its dependencies
 
+```sh
+git clone https://github.com/anandaroop/spatial-benchmarks.git
+
+cd spatial-benchmarks
 ```
-$ git clone https://github.com/anandaroop/spatial-benchmarks.git
-
-$ cd spatial-benchmarks
-
-$ bundle install
-```
-
-1. Obtain the MUDF csv datafile:
 
 ```sh
-$ bundle exec rake get_csv
+asdf install
 ```
-
-2. Load up the data
 
 ```sh
-$ rake load
+bundle install
 ```
 
-3. Run the benchmarks
+1. Obtain the MUDF csv datafile
 
 ```sh
-$ rake benchmark
+bundle exec rake get_csv
 ```
 
-If you run the benchmarks, why not open an issue or PR with the results 😀 ?
+2. Start the servers
+
+```sh
+docker-compose up
+```
+
+3. Create the spatial database and indexes, and load up the data
+
+```sh
+rake load
+```
+
+4. Run the benchmarks
+
+```sh
+rake benchmark
+```
