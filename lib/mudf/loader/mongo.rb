@@ -6,9 +6,14 @@ module MUDF
       def initialize
         super
         config = YAML.load_file("./config/databases.yml")["mongodb"]
-        host, port, database = config.values_at("host", "port", "database")
-        connection_string = "mongodb://#{host}:#{port}/#{database}"
-        @client = ::Mongo::Client.new(connection_string)
+        host, port, database, user, password = config.values_at("host", "port", "database", "user", "password")
+        @client = ::Mongo::Client.new(
+          ["#{host}:#{port}"],
+          database:,
+          user:,
+          password:,
+          auth_source: "admin"
+        )
         @client.logger.level = Logger::ERROR
         @collection = @client[:orgs]
         @collection.drop
