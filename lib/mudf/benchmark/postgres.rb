@@ -12,8 +12,14 @@ module MUDF
       def initialize
         super
         config = YAML.load_file("./config/databases.yml")["postgresql"]
-        host, port, database = config.values_at("host", "port", "database")
-        @client = ::PG::Connection.new(host: host, port: port, dbname: database)
+        host, port, database, user, password = config.values_at("host", "port", "database", "user", "password")
+        @client = ::PG::Connection.new(
+          host:,
+          port:,
+          dbname: database,
+          user:,
+          password:
+        )
         @client.prepare("location_envelope", ENVELOPE_QUERY)
       end
 
