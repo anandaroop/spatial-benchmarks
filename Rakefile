@@ -9,11 +9,27 @@ desc 'Get the MUDF data'
 task :get_csv do
   # https://www.imls.gov/research-evaluation/data-collection/museum-universe-data-file
   url = "https://www.imls.gov/sites/default/files/2018_csv_museum_data_files.zip"
+
   puts 'Downloading…'
   File.open("mudf.zip", "wb") do |file|
     file.write URI.open(url).read
   end
   system('unzip mudf.zip')
+  
+  puts 'Modifying files…'
+  files = [
+    "MuseumFile2018_File1_Nulls.csv",
+    "MuseumFile2018_File2_Nulls.csv",
+    "MuseumFile2018_File3_Nulls.csv"
+  ]
+
+  files.each do |file|
+    content = File.read(file, encoding: "ISO-8859-1").encode("UTF-8")
+    File.write(file, content, encoding: "UTF-8")
+  end
+
+  system("sed -i '' 's/MID,DISCIPL,EIN/MID,DISCIPLINE,EIN/' MuseumFile2018_File1_Nulls.csv")
+
   puts "Done."
 end
 
