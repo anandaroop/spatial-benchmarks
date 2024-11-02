@@ -1,12 +1,16 @@
-mongodb:
-  host: 127.0.0.1
-  port: 27018
-  database: mudf_benchmark
 elasticsearch:
   host: localhost
-  port: 9201
+  port: 9200
   index: mudf_benchmark
 postgresql:
   host: localhost
-  port: 5433
+  port: 5432
   database: mudf_benchmark
+  user: postgres
+  password: postgres
+mongodb:
+  host: localhost
+  port: 27017
+  database: mudf_benchmark
+  user: admin
+  password: password
