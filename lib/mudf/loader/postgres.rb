@@ -13,13 +13,13 @@ module MUDF
           adcity varchar(256),
           adstate varchar(256),
           adzip varchar(256),
-          discipl varchar(256),
+          discipline varchar(256),
           weburl varchar(256)
           )
       SQL
 
       INSERT_ROW = <<~SQL
-        INSERT INTO orgs (mid, commonname, latitude, longitude, adstreet, adcity, adstate, adzip, discipl, weburl)
+        INSERT INTO orgs (mid, commonname, latitude, longitude, adstreet, adcity, adstate, adzip, discipline, weburl)
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
       SQL
 
@@ -38,11 +38,26 @@ module MUDF
       def initialize
         super
         config = YAML.load_file("./config/databases.yml")["postgresql"]
-        host, port, database = config.values_at("host", "port", "database")
-        conn = ::PG::Connection.new(host: host, port: port, dbname: "postgres")
+        host, port, database, user, password = config.values_at("host", "port", "database", "user", "password")
+
+        conn = ::PG::Connection.new(
+          host:,
+          port:,
+          dbname: "postgres",
+          user:,
+          password:
+        )
         conn.exec("DROP DATABASE IF EXISTS #{database}")
         conn.exec("CREATE DATABASE #{database}")
-        @client = ::PG::Connection.new(host: host, port: port, dbname: database)
+
+        @client = ::PG::Connection.new(
+          host:,
+          port:,
+          dbname: database,
+          user:,
+          password:
+        )
+
         prepare_db!
       end
 
@@ -65,6 +80,8 @@ module MUDF
 
       def persist_row(row)
         @client.exec_prepared("org_insert", row.values)
+      rescue PG::UniqueViolation
+        puts "Skipping duplicate record: #{row["mid"]}"
       end
 
       def finalize
