@@ -3,7 +3,7 @@
 module MUDF
   module Benchmark
     class Base
-      QUERIES_PATH = './queries.json'
+      QUERIES_PATH = "./queries.json"
 
       def initialize(path = QUERIES_PATH)
         @queries = JSON.parse(File.read(path))
@@ -12,10 +12,10 @@ module MUDF
       def each_bounding_box
         @queries.each do |bounds|
           yield OpenStruct.new(
-            w: bounds['_southWest']['lng'],
-            e: bounds['_northEast']['lng'],
-            s: bounds['_southWest']['lat'],
-            n: bounds['_northEast']['lat']
+            w: bounds["_southWest"]["lng"],
+            e: bounds["_northEast"]["lng"],
+            s: bounds["_southWest"]["lat"],
+            n: bounds["_northEast"]["lat"]
           )
         end
       end
@@ -23,7 +23,7 @@ module MUDF
       def measure(n: 10)
         m = ::Benchmark.measure do
           n.times do
-            print '.'
+            print "."
             run
           end
           puts "\n"

@@ -5,26 +5,26 @@ module MUDF
     class Mongo < Base
       def initialize
         super
-        config = YAML.load_file('./config/databases.yml')['mongodb']
-        host, port, database = config.values_at('host', 'port', 'database')
+        config = YAML.load_file("./config/databases.yml")["mongodb"]
+        host, port, database = config.values_at("host", "port", "database")
         connection_string = "mongodb://#{host}:#{port}/#{database}"
         @client = ::Mongo::Client.new(connection_string)
         @client.logger.level = Logger::ERROR
         @collection = @client[:orgs]
         @collection.drop
-        @collection.indexes.create_one(location: '2dsphere')
+        @collection.indexes.create_one(location: "2dsphere")
       end
 
       def title
-        'Mongo'
+        "Mongo"
       end
 
       def transform_row!(input_row)
         input_row.tap do |row|
-          lon = row.delete('longitude').to_f
-          lat = row.delete('latitude').to_f
+          lon = row.delete("longitude").to_f
+          lat = row.delete("latitude").to_f
           row[:location] = {
-            type: 'Point',
+            type: "Point",
             coordinates: [lon, lat]
           }
         end

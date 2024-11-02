@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
-require 'ruby-progressbar'
+require "ruby-progressbar"
 
 module MUDF
   module Loader
     class Base
       extend Forwardable
 
-      CSV_PATH = './mudf15q3pub_csv.csv'
+      CSV_PATH = "./mudf15q3pub_csv.csv"
 
       FIELDS_TO_KEEP = %w[
         MID
@@ -24,12 +24,12 @@ module MUDF
 
       def initialize(path = CSV_PATH)
         @file = File.open(path)
-        @file.set_encoding 'ISO-8859-1:UTF-8'
+        @file.set_encoding "ISO-8859-1:UTF-8"
         @csv = CSV.new(@file, headers: true)
-        @bar = ProgressBar.create title: format('%10s', title),
-                                  total: @file.size,
-                                  format: '%t %J%% [%B] %e ',
-                                  throttle_rate: 0.1
+        @bar = ProgressBar.create title: format("%10s", title),
+          total: @file.size,
+          format: "%t %J%% [%B] %e ",
+          throttle_rate: 0.1
       end
 
       def each_row
@@ -54,22 +54,22 @@ module MUDF
 
       # must override
       def title
-        raise 'Must be defined in subclass'
+        raise "Must be defined in subclass"
       end
 
       # must override
       def persist_row(_row)
-        raise 'Must be defined in subclass'
+        raise "Must be defined in subclass"
       end
 
       # must override
       def transform_row!(_input_row)
-        raise 'Must be defined in subclass'
+        raise "Must be defined in subclass"
       end
 
       # optionally override
       def finalize
-        puts 'Finished'
+        puts "Finished"
       end
 
       def_delegator :@file, :rewind, :reset
