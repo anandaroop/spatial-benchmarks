@@ -18,7 +18,7 @@ module MUDF
         ADCITY
         ADSTATE
         ADZIP
-        DISCIPL
+        DISCIPLINE
         WEBURL
       ].freeze
 
