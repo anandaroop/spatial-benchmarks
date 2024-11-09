@@ -18,10 +18,24 @@ module MUDF
 
       def run
         each_bounding_box do |box|
-          result = @client.count index: @index, body: {
-            query: geo_bounding_box_query(box)
+          result = @client.search index: @index, body: {
+            query: geo_bounding_box_query(box),
+            size: RESULTS_PER_QUERY,
+            sort: [
+              {
+                _geo_distance: {
+                  location: {
+                    lat: box.center[:lat],
+                    lon: box.center[:lng]
+                  },
+                  order: "asc",
+                  distance_type: "arc"
+                }
+              }
+            ]
           }
-          _count = result["count"]
+          pp result["hits"]["hits"].map { |hit| hit["_source"].values_at("adstate", "commonname") } if VERBOSE
+          @num_hits += result["hits"]["hits"].length
         end
       end
 
@@ -38,30 +52,3 @@ module MUDF
     end
   end
 end
-
-# def search_within(page:, size:, north:, west:, south:, east:)
-#   from = (page - 1) * size
-#   body = {
-#     from: from,
-#     size: size,
-#     sort: {
-#       :"partner.relative_size" => :asc
-#     },
-#     query: {
-#       geo_bounding_box: {
-#         coordinates: {
-#           top_left: {
-#             lat: north,
-#             lon: west
-#           },
-#           bottom_right: {
-#             lat: south,
-#             lon: east
-#           }
-#         }
-#       }
-#     }
-#   }
-#   search(body)
-# end
-# end

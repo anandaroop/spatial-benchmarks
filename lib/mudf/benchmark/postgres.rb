@@ -4,9 +4,13 @@ module MUDF
   module Benchmark
     class Postgres < Base
       ENVELOPE_QUERY = <<~SQL
-        SELECT count(*)
+        SELECT *
+        -- , ST_X(location::geometry) as lat
+        -- , ST_Y(location::geometry) as lng
         FROM orgs
-        WHERE location && ST_MakeEnvelope($1, $2, $3, $4, 4326);
+        WHERE location && ST_MakeEnvelope($1, $2, $3, $4, 4326)
+        ORDER BY ST_Distance(location::geography, ST_MakePoint($5, $6)::geography)
+        LIMIT #{RESULTS_PER_QUERY}
       SQL
 
       def initialize
@@ -26,9 +30,9 @@ module MUDF
       def run
         each_bounding_box do |box|
           result = @client.exec_prepared("location_envelope",
-            [box.w, box.s, box.e, box.n])
-          _count = result[0]["count"]
-          # puts [_count, box.to_h.values.join(',')].join("\t")
+            [box.w, box.s, box.e, box.n, box.center[:lng], box.center[:lat]])
+          pp result.map { |row| row.values_at("adstate", "commonname") } if VERBOSE
+          @num_hits += result.count
         end
       end
     end

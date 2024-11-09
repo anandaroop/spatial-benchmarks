@@ -5,7 +5,7 @@ require "open-uri"
 require "pry"
 require "debug"
 
-N = 100
+N = 10
 
 desc "Get the MUDF data"
 task :get_csv do
@@ -86,11 +86,18 @@ task :benchmark do
   postgres = MUDF::Benchmark::Postgres.new
   elasticsearch = MUDF::Benchmark::Elasticsearch.new
 
-  Benchmark.bmbm do |x|
-    x.report("Mongo") { N.times { mongo.run } }
-    x.report("Postgres") { N.times { postgres.run } }
+  puts "Performing #{N} runs of 100 queries each with up to #{MUDF::Benchmark::Base::RESULTS_PER_QUERY} results"
+  bm = Benchmark.bmbm do |x|
     x.report("Elastic") { N.times { elasticsearch.run } }
+    x.report("Postgres") { N.times { postgres.run } }
+    x.report("Mongo") { N.times { mongo.run } }
   end
+
+  total_queries = N * 100
+  ["Elastic", "Postgres", "Mongo"].map { |db|
+    seconds = bm.detect { |m| m.label == db }.real
+    puts "#{db}: #{(total_queries / seconds).round(2)} QPS"
+  }
 end
 
 desc "Open a pry console"

@@ -20,11 +20,26 @@ module MUDF
 
       def run
         each_bounding_box do |box|
-          q = {
-            location: geo_within_geometry_query(box)
-          }
-          _count = @client[:orgs].count(q)
-          # puts [_count, box.to_h.values.join(',')].join("\t")
+          result = @collection.aggregate([
+            {
+              "$geoNear" => {
+                near: {
+                  type: "Point",
+                  coordinates: [box.center[:lng], box.center[:lat]]
+                },
+                distanceField: "distance",
+                query: {
+                  location: geo_within_geometry_query(box)
+                }
+              }
+            },
+            {
+              "$limit" => RESULTS_PER_QUERY
+            }
+          ])
+
+          pp result.map { |doc| doc.values_at("adstate", "commonname", "location") } if VERBOSE
+          @num_hits += result.to_a.length
         end
       end
 
