@@ -46,6 +46,14 @@ namespace :mongo do
     print "Mongo"
     benchmark.measure(n: N)
   end
+
+  desc "Open a mongo console"
+  task :console do
+    config = YAML.load_file("./config/databases.yml")["mongodb"]
+    host, port, database, user, password = config.values_at("host", "port", "database", "user", "password")
+    command = "mongo #{database} --host #{host} --port #{port} -u #{user} -p #{password} --authenticationDatabase #{user}"
+    system command
+  end
 end
 
 namespace :elasticsearch do
@@ -59,6 +67,19 @@ namespace :elasticsearch do
   task :benchmark do
     benchmark = MUDF::Benchmark::Elasticsearch.new
     benchmark.measure(n: N)
+  end
+
+  desc "Open a elasticsearch console"
+  task :console do
+    config = YAML.load_file("./config/databases.yml")["elasticsearch"]
+    host, port = config.values_at("host", "port")
+    host_url = "http://#{host}:#{port}"
+    client = ::Elasticsearch::Client.new(host: host_url)
+    puts "client has been created: #{client}\n"
+    puts "Example: client.search"
+    puts "Example: client.search body: { query: { term: { adzip: \"10028\"} } }"
+    puts "Example: client.search body: { query: { bool: { must: { match_all: {} }, filter: { geo_distance: { distance: \"20km\", location: { lat: 30, lon: -90 } } } } } }"
+    binding.pry # standard:disable Lint/Debugger
   end
 end
 
@@ -74,6 +95,14 @@ namespace :postgres do
     benchmark = MUDF::Benchmark::Postgres.new
     print "PostGIS"
     benchmark.measure(n: N)
+  end
+
+  desc "Open a psql console"
+  task :console do
+    config = YAML.load_file("./config/databases.yml")["postgresql"]
+    host, port, database, user, password = config.values_at("host", "port", "database", "user", "password")
+    command = "PGPASSWORD=#{password} psql -h #{host} -p #{port} -U #{user} -d #{database}"
+    system command
   end
 end
 
