@@ -6,10 +6,6 @@ It is written in Ruby, and organized as series of Rake tasks.
 
 ## Findings
 
-### TLDR
-
-**1 second of PostGIS time ≈ 1.7 seconds of Elasticsearch time ≈ 1.5 seconds of Mongo time**
-
 ### Methodology
 
 Perform [a set of 100 bounding box queries](queries.json) that represent a moving window, as might be fetched from a front-end map client, over a swath of the United States extending from New York to Florida.
@@ -29,7 +25,7 @@ For **N=10**, i.e. 1000 bounding box queries, here are the results, based on wal
 | Data store         | Version    | Index    | Elapsed (real) | Normalized | Throughput       |
 | ------------------ | ---------- | -------- | -------------- | ---------- | ---------------- |
 | Elasticsearch      | 8.12       | n/a      | 1.74 sec       | 1.0        | 574 queries/sec  |
-| Postgres / PostGIS | 15.4 / 3.3 | GiST     | 6.71 sec       | 3.85       | 149 queries/sec  |
+| Postgres / PostGIS | 15.4 / 3.3 | GiST     | 6.20 sec       | 3.56       | 161 queries/sec  |
 | MongoDB            | 7.0        | 2dsphere | 65.79 sec      | 37.8       | 15.2 queries/sec |
 
 Hardware note: This is on a 2023-vintage Mac laptop:

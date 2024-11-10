@@ -35,6 +35,10 @@ module MUDF
         CREATE INDEX orgs_location_idx ON orgs USING GIST ( location )
       SQL
 
+      CLUSTER_TABLE_PHYSICALLY = <<~SQL
+        CLUSTER orgs USING orgs_location_idx
+      SQL
+
       def initialize
         super
         config = YAML.load_file("./config/databases.yml")["postgresql"]
@@ -110,6 +114,7 @@ module MUDF
 
       def index_spatial_cols!
         @client.exec(INDEX_COL)
+        @client.exec(CLUSTER_TABLE_PHYSICALLY)
         @client.exec("VACUUM ANALYZE orgs")
       end
     end
